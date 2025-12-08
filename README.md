@@ -23,7 +23,7 @@ A clean, dependency-free Python script to rebalance investment portfolios. Desig
 
 You need two files to run the script (JSON and CSV).
 
-### 1. `config.json`
+### 1. config.json
 To start, rename config-template.json to config.json and add your own ISINs.
 Define your risk profiles and fee structure.
 
@@ -48,7 +48,7 @@ Define your risk profiles and fee structure.
 Rename holdings-template.cvs to holdings.csv and add your own data.
 Your current portfolio status. Note: Update prices manually or via script before running.
 
-isin,name,qty,price,currency
+isin,name,qty,price,currency \n
 IE00B4X9L533,MSCI World,120.0,92.50,EUR
 IE00BKM4GZ66,Emerging Mkts,45.0,28.10,EUR
 
@@ -57,7 +57,7 @@ IE00BKM4GZ66,Emerging Mkts,45.0,28.10,EUR
 
 Simulate the rebalance. This will not modify any files. It calculates the necessary trades to reach your target allocation based on the cash you inject.
 
-python3 portfolio-rebalancer.py --cash 3000 --risk 7 --mode plan
+```python3 portfolio-rebalancer.py --cash 3000 --risk 7 --mode plan```
 
 Output:
     Deficits per asset.
@@ -68,7 +68,7 @@ Output:
 ### Step 2: EXECUTE (Commit)
 Once you have physically executed the orders at your broker, run the script in commit mode to update your records.
 
-python3 portfolio-rebalancer.py --cash 3000 --risk 7 --mode commit
+```python3 portfolio-rebalancer.py --cash 3000 --risk 7 --mode commit```
 
 Actions performed:
     Updates quantities in holdings.csv.
@@ -78,10 +78,10 @@ Actions performed:
 #### Advanced Options
 Fee Optimization: If you have a minimum fee (e.g., 2€) and want to avoid buying small amounts (e.g., 10€ stock purchase paying 2€ fee), use the efficient strategy:
 
---strategy efficient --min-fee 2.0
+```--strategy efficient --min-fee 2.0```
 
 Withdrawals: Use negative cash numbers to plan a withdrawal
---cash -1000
+```--cash -1000```
 
 ## License
 This project is open-source. Feel free to use and modify.
