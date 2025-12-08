@@ -1,0 +1,14 @@
+# Python artifacts
+__pycache__/
+*.pyc
+
+# Mac artifacts
+.DS_Store
+
+# --- PRIVATE FINANCIAL DATA ---
+holdings.csv
+history.csv
+perf.json
+snapshots/
+config.json
+!config.example.json

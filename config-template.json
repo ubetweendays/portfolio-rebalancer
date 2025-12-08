@@ -1,0 +1,38 @@
+{
+  "base_currency": "EUR",
+  "fractional": false,
+  "lot_size": 1.0,
+  "tolerance_band": 0.01,
+  "fees": { "fixed": 0.0, "bps": 12.0, "min": 0, "max": 0},
+  "risk_profiles": {
+    "5": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.122 },
+      { "isin": "IE00BWBXM617", "name": "MSCI Health Care",   "target_weight": 0.122 },
+      { "isin": "IE00B579F325", "name": "Gold",               "target_weight": 0.200 }
+    ],
+    "6": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.142 },
+      { "isin": "IE00B579F325", "name": "Gold",               "target_weight": 0.200 }
+    ],
+    "7": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.160 },
+      { "isin": "IE00BWBXM617", "name": "MSCI Health Care",   "target_weight": 0.160 },
+      { "isin": "IE00BM67HT60", "name": "MSCI Technology",    "target_weight": 0.160 }
+    ],
+    "8": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.700 },
+      { "isin": "IE00BWBXM617", "name": "MSCI Health Care",   "target_weight": 0.100 },
+      { "isin": "IE00B579F325", "name": "Gold",               "target_weight": 0.200 }
+    ],
+    "9": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.700 },
+      { "isin": "IE00BWBXM617", "name": "MSCI Health Care",   "target_weight": 0.100 },
+      { "isin": "IE00B579F325", "name": "Gold",               "target_weight": 0.200 }
+    ],
+    "10": [
+      { "isin": "IE00BWBXM385", "name": "MSCI Staple",        "target_weight": 0.700 },
+      { "isin": "IE00BWBXM617", "name": "MSCI Health Care",   "target_weight": 0.100 },
+      { "isin": "IE00B579F325", "name": "Gold",               "target_weight": 0.200 }
+    ]
+  }
+}
