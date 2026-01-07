@@ -16,6 +16,7 @@
 import argparse, csv, json, math, sys, shutil
 from pathlib import Path
 from datetime import date
+from pyxirr import xirr
 
 # -------- CLI --------
 def parse_args():
@@ -24,8 +25,7 @@ def parse_args():
     ap.add_argument("--holdings", default="holdings.csv", help="Holdings CSV")
     ap.add_argument("--cash", type=float, required=True, help="Cash to add (negative to withdraw)")
     ap.add_argument("--risk", type=str, default=None, help="Risk profile key (e.g., 5 or 7)")
-    # CANVI: Renomenat 'execute' a 'commit'
-    ap.add_argument("--mode", choices=["plan","commit"], default="plan", help="plan orders or commit changes")
+    ap.add_argument("--mode", choices=["plan","commit", "perf"], default="plan", help="plan, commit or view performance")
     ap.add_argument("--strategy", choices=["standard", "efficient"], default="efficient", 
                     help="standard: fill all gaps; efficient: concentrates trades")
     
@@ -75,6 +75,77 @@ def load_holdings(path):
             r["price"] = float(r["price"])
             rows.append(r)
     return rows
+
+def show_performance(history_path, current_holdings):
+    if xirr is None:
+        print("❌ Error: Necessites instal·lar 'pyxirr'. Executa: pip install pyxirr")
+        return
+
+    # 1. Valor actual (Això és un ingrés potencial, per tant POSITIU)
+    current_value = sum(r["qty"] * r["price"] for r in current_holdings)
+    
+    dates = []
+    amounts = []
+    
+    # Per calcular el ROI simple en cas que no hi hagi prou temps
+    total_invested = 0.0
+
+    try:
+        with open(history_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                d = date.fromisoformat(row["date"]) # Convertim a objecte data real
+                dates.append(d)
+                
+                raw_cash = float(row["cash_flow"])
+                # Invertim signe pel càlcul de XIRR
+                amounts.append(raw_cash * -1)
+                
+                # Sumem el total invertit (només les entrades de diners)
+                if raw_cash > 0:
+                    total_invested += raw_cash
+                
+    except FileNotFoundError:
+        print("❌ No history file found yet.")
+        return
+
+    # 2. Afegim el valor actual a data d'avui
+    today = date.today()
+    dates.append(today)
+    amounts.append(current_value)
+
+    print(f"\n📈 PERFORMANCE METRICS")
+    print("-" * 30)
+    print(f"Current Value : {current_value:,.2f} €")
+    print(f"Total Invested: {total_invested:,.2f} €")
+    
+    profit = current_value - total_invested
+    sign = "+" if profit >= 0 else ""
+    print(f"Total P&L     : {sign}{profit:,.2f} €")
+
+    # 3. LÒGICA ANTIPROBLEMES (INF)
+    # Si la primera inversió va ser avui (o no ha passat ni un dia), el XIRR peta.
+    # En aquest cas mostrem el ROI simple.
+    days_diff = (today - min(dates)).days
+
+    if days_diff < 1:
+        # Càlcul de rendibilitat simple (ROI)
+        roi = (profit / total_invested * 100) if total_invested > 0 else 0.0
+        print(f"Return (ROI)  : {roi:.2f}% (Portfolio is too new for XIRR)")
+    else:
+        # Càlcul de XIRR (Anualitzat)
+        try:
+            res = xirr(dates, amounts)
+            if res is not None:
+                # A vegades el XIRR pot ser extrem si el període és molt curt (ex: 2 dies)
+                # Si és gegant, mostrem també el ROI per context
+                print(f"XIRR (Annual) : {res * 100:.2f}%")
+            else:
+                print("XIRR (Annual) : N/A (Calculation failed)")
+        except Exception as e:
+            print(f"XIRR Error    : {e}")
+            
+    print("-" * 30)
 
 def write_holdings(path, rows):
     fieldnames = ["isin", "name", "qty", "price", "currency"]
@@ -270,10 +341,14 @@ def apply_trades_to_holdings(holdings, trades):
     return list(h_map.values())
 
 # -------- MAIN --------
-def main():
+def main():  
     args = parse_args()
     cfg, target_weights = load_config(args.config, args.risk)
     holdings = load_holdings(args.holdings)
+
+    if args.mode == "perf":
+        show_performance(args.history, holdings)
+        return  # Sortim immediatament
     
     planned_trades, summary = plan(cfg, target_weights, holdings, args.cash, 
                                    strategy=args.strategy, 
